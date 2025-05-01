@@ -77,7 +77,7 @@ function receiveFileByCode() {
     });
   }
 
-  // 导入 WebRTC 相关功能
+  // 导入 WebRTC 相关功能测试
   import("@/utils/rtc")
     .then(
       ({
