@@ -68,74 +68,10 @@ export function useFileTransfer() {
    * @param event FileUploadUploaderEvent
    * @description 自定义文件上传逻辑：webrtc
    */
-  const onUploader = (event: FileUploadUploaderEvent) => {
+  const onUploader = async (event: FileUploadUploaderEvent) => {
     console.log("Uploader event:", event.files);
     uploadState.isUploading = true;
-    
-    // 导入 WebRTC 相关功能
-    import('@/utils/rtc').then(({ createSenderDataChannel, sendFile, connectionId, transferProgress, isTransferComplete, connectionState }) => {
-      // 创建数据通道
-      createSenderDataChannel();
-      
-      // 监听连接状态变化
-      const unwatch1 = watch(connectionState, (newState) => {
-        if (newState === 'connected') {
-          // 连接成功后，开始发送文件
-          if (event.files && event.files.length > 0) {
-            const file = event.files[0];
-            const sendResult = sendFile(file);
-            
-            if (!sendResult) {
-              toast.add({
-                severity: "error",
-                summary: "错误",
-                detail: "文件发送失败，请重试",
-                life: 3000
-              });
-              uploadState.isUploading = false;
-              unwatch1();
-              unwatch2();
-            }
-          }
-        } else if (newState === 'failed' || newState === 'disconnected') {
-          toast.add({
-            severity: "error",
-            summary: "连接失败",
-            detail: "WebRTC连接失败，请检查网络后重试",
-            life: 3000
-          });
-          uploadState.isUploading = false;
-          unwatch1();
-          unwatch2();
-        }
-      });
-      
-      // 监听传输进度
-      const unwatch2 = watch([transferProgress, isTransferComplete], ([progress, completed]) => {
-        totalSizePercent.value = progress;
-        
-        if (completed) {
-          toast.add({
-            severity: "success",
-            summary: "传输完成",
-            detail: `文件已成功发送，取件码：${connectionId.value}`,
-            life: 5000
-          });
-          uploadState.isUploading = false;
-          unwatch1();
-          unwatch2();
-        }
-      });
-    }).catch(error => {
-      console.error('加载WebRTC模块失败:', error);
-      toast.add({
-        severity: "error",
-        summary: "模块加载失败",
-        detail: "无法加载WebRTC模块，请刷新页面重试",
-        life: 3000
-      });
-      uploadState.isUploading = false;
-    });
+    const files = event.files;
   };
 
   return {
