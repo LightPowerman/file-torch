@@ -39,3 +39,4 @@ export const formatSize = (bytes: number) => {
 
   return `${formattedSize} ${sizes[i]}`;
 };
+
